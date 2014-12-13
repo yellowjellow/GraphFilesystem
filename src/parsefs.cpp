@@ -560,16 +560,16 @@ int main () {
     cout << "NumVertices" << vfs.NumVertices() << endl;
     cout << "Num Labels" << vfs.NumLabels() << endl;
 
-    cout << "Num Vertices Label 0:" << vfs.NumVertices(0) << endl;
-    cout << "Num Vertices Label 1:" << vfs.NumVertices(1) << endl;
-    cout << "Num Vertices Label 2:" << vfs.NumVertices(2) << endl;
+    for (int i = 0; i < vfs.NumLabels(); i += 1)
+        cout << "Num Vertices Label " << i << ":" << vfs.NumVertices(i) << endl;
 
     for(int label_idx = 0; label_idx < vfs.NumLabels(); label_idx += 1) {
-        cout << "Label Index :" << label_idx << endl;
+        cout << "Label Index :" << label_idx << " : ";
         UINT* vertex_ptr = vfs.GetVertexIterator(label_idx);
         for(int vertex_idx = 0; vertex_idx < vfs.NumVertices(label_idx); vertex_idx += 1) {
-            cout << vertex_ptr[vertex_idx] << endl;
+            cout << ' ' << vertex_ptr[vertex_idx];
         }
+        cout << endl;
     }
 
     vector<VERTEX>* v;
@@ -593,7 +593,7 @@ int main () {
             cout << " Vertices: ";
             while (begin != end) {
                 cout <<  *(begin) << "-";
-                assert(efs.HasEdge(vertex, *(begin)));
+                //assert(efs.HasEdge(vertex, *(begin)));
                 begin += 1;
             }
             cout << endl;

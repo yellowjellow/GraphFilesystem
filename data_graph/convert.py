@@ -12,6 +12,18 @@ def parse_pairs(f) :
         vertex_map[pair[0]] = pair[1]
     return vertex_map
 
+def parse_edges(f) :
+    edgelist = []
+    for line in f :
+        line = line.strip()
+        if len(line) == 0 :
+            break
+        if line[0] == '#' :
+            continue
+        pair = line.split(',')
+        edgelist.append((pair[0], pair[1]))
+    return edgelist
+
 def get_label_frequency(vdict) :
     s = dict()
     for (v,l) in vdict.items() :
@@ -78,17 +90,20 @@ def generate_label_offsets(ordered_mapping) :
                 vertex_block.append(vertex_list)
             else :
                 index += len(vertex_list)
+                vertex_list = sorted(vertex_list, key=lambda x:int(x))
                 vertex_block.extend(vertex_list)
             d.append((label, index))
-    vertex_block = sorted(vertex_block, key=lambda x:int(x))
     return (d, vertex_block)
 
 def print_edges(edge_list, vdict, path="edge_file") :
     # Dict[VertexId][Label] => [VertexId]
+    print edge_list
     mapping = buildEdgeMapping(edge_list, vdict)
+    print mapping
     ordered_by_vertexid = sorted(mapping.items(), key=lambda d:int(d[0]))
     end_offsets = generate_end_offsets(ordered_by_vertexid)
     vertex_list = sorted(vdict.keys(), key=lambda k:int(k))
+    print ordered_by_vertexid
     (label_offsets, vertex_block) = generate_label_offsets(ordered_by_vertexid)
     num_bytes = 1 + 2 * len(label_offsets) + len(vertex_block) + len(vertex_list)
 
@@ -110,9 +125,9 @@ def print_edges(edge_list, vdict, path="edge_file") :
         f.write(str(v) + '\n')
     f.close()
 
-def print_reverse_edges(edges,vdict) :
+def print_reverse_edges(edgelist,vdict) :
     reverse_edgelist = []
-    for (src,dst) in edges.items() :
+    for (src,dst) in edgelist :
         reverse_edgelist.append((dst,src))
     print_edges(reverse_edgelist, vdict, "reverse_edge_file")
 
@@ -124,8 +139,10 @@ f = open(file_path)
 vertices = parse_pairs(f)
 
 # VertexId => VertexId
-edges = parse_pairs(f)
+edges = parse_edges(f)
+print vertices
+print edges
 
 print_vertices(vertices)
-print_edges(edges.items(), vertices)
+print_edges(edges, vertices)
 print_reverse_edges(edges, vertices)
