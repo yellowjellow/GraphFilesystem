@@ -23,7 +23,12 @@ def get_label_frequency(vdict) :
 def print_vertices(vdict) :
     label_freq = get_label_frequency(vdict)
     ordered_labels = sorted(label_freq, key=lambda pair:int(pair[0]))
+    num_bytes = 2 + 2 * len(ordered_labels)
+    for (l,vertices) in ordered_labels :
+        num_bytes += len(vertices)
+
     f = open("vertex_file", "w")
+    f.write(str(num_bytes) + '\n')
     f.write(str(len(vdict.items())) + '\n')
     f.write(str(len(label_freq)) + '\n')
     for (l,vertices) in ordered_labels :
@@ -35,6 +40,7 @@ def print_vertices(vdict) :
     for (l,vertices) in ordered_labels :
         for v in vertices :
             f.write(str(v) + '\n')
+
     f.close()
 
 def dict_add(d, k, k2, v) :
@@ -79,13 +85,16 @@ def generate_label_offsets(ordered_mapping) :
 
 def print_edges(edge_list, vdict, path="edge_file") :
     # Dict[VertexId][Label] => [VertexId]
-    f = open(path, "w")
-    f.write(str(len(vdict.items())) + '\n')
-
     mapping = buildEdgeMapping(edge_list, vdict)
     ordered_by_vertexid = sorted(mapping.items(), key=lambda d:int(d[0]))
     end_offsets = generate_end_offsets(ordered_by_vertexid)
     vertex_list = sorted(vdict.keys(), key=lambda k:int(k))
+    (label_offsets, vertex_block) = generate_label_offsets(ordered_by_vertexid)
+    num_bytes = 1 + 2 * len(label_offsets) + len(vertex_block) + len(vertex_list)
+
+    f = open(path, "w")
+    f.write(str(num_bytes) + '\n')
+    f.write(str(len(vdict.items())) + '\n')
     recent = 0
     for v in vertex_list :
         if end_offsets.has_key(v) :
@@ -94,9 +103,9 @@ def print_edges(edge_list, vdict, path="edge_file") :
         else :
             f.write(str(recent) + '\n')
 
-    (label_offsets, vertex_block) = generate_label_offsets(ordered_by_vertexid)
     for (label,index) in label_offsets : 
         f.write(str(label) + '\n' + str(index) + '\n')
+
     for v in vertex_block :
         f.write(str(v) + '\n')
     f.close()
