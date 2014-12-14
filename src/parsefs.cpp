@@ -310,13 +310,17 @@ UINT* EdgeFs::IncomingEdgeIterator(const UINT vertex_id, const LABEL label) {
 
     while (count > 0) {
         if (label == *(label_it)) {
-            if (vertex_id == 0 && label == 0) 
-                edge_it = adjacent_vertex_ids;
+            if ((vertex_id == 0 && label == 0) ||
+                label_it == rev_adjacent_vertex_labels)
+            {
+                edge_it = rev_adjacent_vertex_ids;
+            }
             else
                 edge_it = rev_adjacent_vertex_ids + *(label_it - 1);
             break;
         }
-        if (vertex_id == 0 && label == 0)
+        if ((vertex_id == 0 && label == 0) ||
+            label_it == rev_adjacent_vertex_labels)
             count -= *(label_it + 1);
         else
             count -= *(label_it + 1) - *(label_it - 1);
@@ -582,15 +586,20 @@ int main () {
             cout << "\tLabel" << label << ": " ;
             cout << "\tIn: " << efs.GetInDegree(vertex, label);
             cout << "\tOut: " << efs.GetOutDegree(vertex, label);
+            v = efs.GetIndegreeVertices(vertex,label);
+            cout << " In Vertices: ";
+            for (int i = 0; i < v->size(); i += 1)
+                cout << "-" << v->at(i);
+            delete v;
             v = efs.GetOutdegreeVertices(vertex,label);
-            cout << " Vertices: ";
+            cout << " Out Vertices: ";
             for (int i = 0; i < v->size(); i += 1)
                 cout << "-" << v->at(i);
             delete v;
             UINT* begin = efs.OutgoingEdgeIterator(vertex,label);
             UINT* end = efs.OutgoingEdgeIteratorEnd(vertex,label);
 
-            cout << " Vertices: ";
+            cout << " Out Vertices: ";
             while (begin != end) {
                 cout <<  *(begin) << "-";
                 //assert(efs.HasEdge(vertex, *(begin)));
